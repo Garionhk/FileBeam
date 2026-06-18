@@ -13,3 +13,6 @@ fileshare/packaging/bin/cloudflared.exe
 *.db-wal
 *.db-shm
 .DS_Store
+
+# Local Claude Code settings (machine-specific)
+.claude/settings.local.json
