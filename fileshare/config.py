@@ -136,13 +136,16 @@ class Config:
     def share_bind_host(self) -> str:
         """Address the public file server actually listens on.
 
-        For LAN mode the browser hits us directly on the LAN IP, so we must bind
-        to all interfaces; an explicit non-loopback share_host is always honored.
-        Tunnel modes keep loopback-only binding (the tunnel connects locally),
-        so the default needs no firewall change.
+        Bind to all interfaces by default. LAN mode needs this (the browser hits
+        the LAN IP directly), and so does switching to LAN from the UI dropdown
+        at runtime — the server is bound once at startup, before a backend is
+        chosen, so a loopback-only bind would make LAN unreachable. The public
+        server is access-controlled and built to face the internet, so LAN
+        exposure is acceptable; tunnels still connect over loopback (127.0.0.1).
+        An explicit non-loopback share_host is always honored as-is.
         """
         h = self.data["server"]["share_host"]
-        if self.backend_name == "lan" and h in ("127.0.0.1", "localhost"):
+        if h in ("127.0.0.1", "localhost"):
             return "0.0.0.0"
         return h
 
