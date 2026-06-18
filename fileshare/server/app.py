@@ -50,8 +50,10 @@ class _Server:
     """A uvicorn server running in its own daemon thread."""
 
     def __init__(self, app, host, port):
+        # log_config=None skips uvicorn's dictConfig (its colourized formatter
+        # touches sys.stdout.isatty(), which breaks in windowed/no-console builds).
         cfg = uvicorn.Config(app, host=host, port=port, log_level="warning",
-                             access_log=False)
+                             access_log=False, log_config=None)
         self.server = uvicorn.Server(cfg)
         self.thread = threading.Thread(target=self.server.run, daemon=True)
 

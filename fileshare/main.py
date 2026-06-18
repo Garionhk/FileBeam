@@ -6,12 +6,23 @@ console loop, optionally serving the legacy web admin.
 """
 from __future__ import annotations
 
-import argparse
+import os
 import sys
-import threading
-import time
 
-from fileshare.server.app import Runtime
+# Windowed PyInstaller builds on Windows have sys.stdout/sys.stderr == None.
+# That crashes uvicorn's log formatter (calls .isatty() on the stream) and any
+# print() call. Give them a sink before anything touches them. No effect on
+# macOS / console builds, where the streams are real.
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w")
+
+import argparse  # noqa: E402
+import threading  # noqa: E402
+import time  # noqa: E402
+
+from fileshare.server.app import Runtime  # noqa: E402
 
 
 def main(argv=None) -> int:
