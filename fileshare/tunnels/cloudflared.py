@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Optional
 
 from ..config import bundle_dir
-from .base import TunnelBackend, TunnelState
+from .base import TunnelBackend, TunnelState, no_window_kwargs
 
 # cloudflared prints e.g.  https://random-words-here.trycloudflare.com
 _URL_RE = re.compile(r"https://[-a-z0-9]+\.trycloudflare\.com")
@@ -84,6 +84,7 @@ class CloudflaredBackend(TunnelBackend):
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            **no_window_kwargs(),
         )
         self._reader = threading.Thread(target=self._read_output, daemon=True)
         self._reader.start()

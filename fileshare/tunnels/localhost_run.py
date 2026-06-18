@@ -15,7 +15,7 @@ import time
 from typing import Optional
 from urllib.parse import urlparse
 
-from .base import TunnelBackend, TunnelState
+from .base import TunnelBackend, TunnelState, no_window_kwargs
 
 _URL_RE = re.compile(r"https://\S+\.lhr\.life")
 
@@ -42,6 +42,7 @@ class LocalhostRunBackend(TunnelBackend):
                 "-R", f"80:localhost:{port}", f"nokey@{host}",
             ],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
+            **no_window_kwargs(),
         )
         threading.Thread(target=self._read_output, daemon=True).start()
 

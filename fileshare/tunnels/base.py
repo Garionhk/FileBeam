@@ -10,10 +10,24 @@ register it in registry.BACKENDS. ~30 lines, see localhost_run.py for a model.
 from __future__ import annotations
 
 import enum
+import subprocess
+import sys
 import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Callable, Optional
+
+
+def no_window_kwargs() -> dict:
+    """Extra subprocess.Popen kwargs that suppress a console window on Windows.
+
+    Without CREATE_NO_WINDOW, launching a console program (cloudflared, ssh)
+    from a windowed app flashes a console window. No-op on macOS/Linux.
+    """
+    if sys.platform.startswith("win"):
+        # CREATE_NO_WINDOW; also defined as subprocess.CREATE_NO_WINDOW on Windows.
+        return {"creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)}
+    return {}
 
 
 class TunnelState(str, enum.Enum):
