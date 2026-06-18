@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+.build-venv/
+build/
+dist/
+release/
+*.zip
+*.spec.bak
+fileshare/packaging/bin/cloudflared
+fileshare/packaging/bin/cloudflared.exe
+*.db
+*.db-wal
+*.db-shm
+.DS_Store

@@ -1,0 +1,41 @@
+# FileShare settings. Edit while the app is stopped, or use the admin UI.
+
+[server]
+# Local admin page binds here (loopback only — never expose this publicly).
+admin_host = "127.0.0.1"
+admin_port = 8765
+# Public file server (the tunnel points at this). Bound to loopback; reached
+# only through the tunnel backend.
+share_host = "127.0.0.1"
+share_port = 8766
+# Optional passcode to open the local admin page. Empty = no passcode
+# (safe because admin is loopback-only).
+admin_passcode = ""
+
+[tunnel]
+# Which TunnelBackend to use. One of the keys registered in tunnels/registry.py:
+#   cloudflared  -> zero-setup, no account (DEFAULT)
+#   localhost_run -> SSH-based, no account, no bundled binary
+#   selfhosted   -> ADVANCED: your own relay on a public-IP VPS
+#   lan          -> LAN-only, no tunnel (may need a one-time firewall allow)
+backend = "cloudflared"
+
+[tunnel.cloudflared]
+# Path to the cloudflared binary. "auto" = use the bundled one, else system PATH.
+binary = "auto"
+
+[tunnel.localhost_run]
+ssh_host = "localhost.run"
+
+[tunnel.selfhosted]
+# Fill these in only if you run your own relay (see README "optional: run your own relay").
+relay_url = ""
+relay_token = ""
+
+[limits]
+# Auth attempts per IP per minute before temporary block.
+auth_attempts_per_min = 10
+# Download requests per IP per minute.
+downloads_per_min = 120
+# Max upload size in MB (0 = unlimited).
+max_upload_mb = 0

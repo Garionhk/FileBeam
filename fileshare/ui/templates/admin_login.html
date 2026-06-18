@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FileShare Admin · Unlock</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; max-width: 360px; margin: 12vh auto; padding: 24px; }
+    input, button { font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid #8886; width: 100%; box-sizing: border-box; }
+    button { background: #2563eb; color: #fff; border: 0; margin-top: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>🔒 Admin locked</h1>
+  <form method="post" action="/login">
+    <input type="password" name="passcode" placeholder="Admin passcode" autofocus required>
+    <button type="submit">Unlock</button>
+  </form>
+</body>
+</html>

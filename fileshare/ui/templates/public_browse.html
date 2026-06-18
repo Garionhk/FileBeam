@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FileShare</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+           max-width: 820px; margin: 0 auto; padding: 24px; line-height: 1.5; }
+    h1 { font-size: 1.4rem; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .card { border: 1px solid #8884; border-radius: 10px; padding: 14px 16px; margin: 10px 0; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+           padding: 8px 0; border-bottom: 1px solid #8882; }
+    .row:last-child { border-bottom: 0; }
+    .muted { color: #6b7280; font-size: .85rem; }
+    .badge { font-size: .7rem; padding: 2px 8px; border-radius: 999px; background: #10b98122; color: #059669; }
+    .badge.group { background: #f59e0b22; color: #b45309; }
+    form.inline { display: flex; gap: 8px; margin-top: 8px; }
+    input, button { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid #8886; }
+    button { background: #2563eb; color: #fff; border: 0; cursor: pointer; }
+    .crumbs { margin: 6px 0 14px; }
+    .up { display: inline-flex; gap: 8px; align-items: center; }
+  </style>
+</head>
+<body>
+  <h1>📁 FileShare</h1>
+
+  {% if folders is not none %}
+    {# Root: list folders this visitor may see #}
+    {% if folders %}
+      <div class="card">
+        {% for f in folders %}
+          <div class="row">
+            <div><a href="/f/{{ f['name'] }}">{{ f['name'] }}</a></div>
+            <span class="badge {{ 'group' if f['access_level']=='GROUP' else '' }}">
+              {{ 'group' if f['access_level']=='GROUP' else 'public' }}
+            </span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">No public folders available. If you have a passcode, enter it below.</p>
+    {% endif %}
+
+    <div class="card">
+      <strong>Have a group passcode?</strong>
+      <form class="inline" method="post" action="/unlock">
+        <input type="password" name="passcode" placeholder="Group passcode" autocomplete="off" required>
+        <button type="submit">Unlock</button>
+      </form>
+      {% if identity.group_id %}<p class="muted">Signed in to a group · <a href="/logout">sign out</a></p>{% endif %}
+    </div>
+
+  {% else %}
+    {# Inside a folder: list entries #}
+    <div class="crumbs">
+      <a href="/">home</a> / <strong>{{ current['name'] }}</strong>
+      {% if subpath %} / {{ subpath }}{% endif %}
+    </div>
+
+    <div class="card">
+      {% if entries %}
+        {% for e in entries %}
+          <div class="row">
+            {% if e['is_dir'] %}
+              <div>📂 <a href="/f/{{ current['name'] }}/{{ (subpath ~ '/' if subpath else '') ~ e['name'] }}">{{ e['name'] }}</a></div>
+              <span class="muted">folder</span>
+            {% else %}
+              <div>📄 <a href="/f/{{ current['name'] }}/{{ (subpath ~ '/' if subpath else '') ~ e['name'] }}">{{ e['name'] }}</a></div>
+              <span class="muted">{{ human_size(e['size']) }}</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted">This folder is empty.</p>
+      {% endif %}
+    </div>
+
+    {% if can_upload %}
+      <div class="card">
+        <strong>Upload a file</strong>
+        <form class="inline" method="post" action="/f/{{ current['name'] }}/upload" enctype="multipart/form-data">
+          <input type="file" name="file" required>
+          <button type="submit">Upload</button>
+        </form>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <p class="muted">Powered by FileShare · downloads resume automatically</p>
+</body>
+</html>

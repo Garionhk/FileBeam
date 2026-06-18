@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FileShare · Admin</title>
+  <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body>
+<header>
+  <h1>📁 FileShare <span class="muted">admin</span></h1>
+</header>
+
+<!-- ===== Public URL banner (always visible, top of page) ===== -->
+<section id="url-banner" class="banner">
+  <div id="url-state" class="state">Tunnel stopped</div>
+  <div class="url-line">
+    <code id="public-url">—</code>
+    <button id="copy-url" class="small" disabled>Copy</button>
+  </div>
+  <div id="url-warning" class="warning" hidden>
+    ⚠️ The public URL just changed. <b>Previously shared links no longer work.</b>
+    Share the new URL above. <button id="ack-url" class="small ghost">Got it</button>
+  </div>
+  <div class="tunnel-controls">
+    <select id="backend-select">
+      {% for b in backends %}
+        <option value="{{ b['name'] }}" {{ 'selected' if b['name']==backend_name else '' }}>{{ b['label'] }}</option>
+      {% endfor %}
+    </select>
+    <button id="start-tunnel" class="small">Start sharing</button>
+    <button id="stop-tunnel" class="small ghost">Stop</button>
+    <span id="backend-desc" class="muted"></span>
+  </div>
+</section>
+
+<main>
+  <!-- ===== Folders ===== -->
+  <section class="card">
+    <h2>Shared folders</h2>
+    <table>
+      <thead><tr><th>Name</th><th>Path</th><th>Access</th><th>Watched</th><th>Drop files</th><th></th></tr></thead>
+      <tbody>
+      {% for f in folders %}
+        <tr>
+          <td><b>{{ f['name'] }}</b></td>
+          <td class="muted path">{{ f['abs_path'] }}</td>
+          <td><span class="badge {{ 'group' if f['access_level']=='GROUP' else 'pub' }}">{{ f['access_level'] }}</span></td>
+          <td>{{ '👁️' if f['watched'] else '—' }}</td>
+          <td>
+            <div class="dropzone" data-folder="{{ f['id'] }}">drop / click</div>
+            <input type="file" class="file-input" data-folder="{{ f['id'] }}" multiple hidden>
+          </td>
+          <td>
+            <form method="post" action="/folders/{{ f['id'] }}/delete" onsubmit="return confirm('Remove this folder from sharing? Files on disk are kept.')">
+              <button class="small ghost danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <details>
+      <summary>Add a folder</summary>
+      <form method="post" action="/folders" class="grid">
+        <input name="name" placeholder="Display name (e.g. photos)" required>
+        <input name="abs_path" placeholder="Absolute path on this computer" required>
+        <select name="access_level">
+          <option value="PUBLIC">PUBLIC — anyone with the link</option>
+          <option value="GROUP">GROUP — passcode / token required</option>
+        </select>
+        <input name="quota_mb" placeholder="Quota MB (optional)">
+        <label class="check"><input type="checkbox" name="watched"> Watch for new files</label>
+        <button>Add folder</button>
+      </form>
+    </details>
+  </section>
+
+  <!-- ===== Groups & permissions ===== -->
+  <section class="card">
+    <h2>Groups &amp; permissions</h2>
+    <table>
+      <thead><tr><th>Folder</th>{% for g in groups %}<th>{{ g['name'] }}</th>{% endfor %}</tr></thead>
+      <tbody>
+      {% for f in folders %}
+        <tr>
+          <td><b>{{ f['name'] }}</b></td>
+          {% for g in groups %}
+            <td>
+              <form method="post" action="/grants" class="perm">
+                <input type="hidden" name="folder_id" value="{{ f['id'] }}">
+                <input type="hidden" name="group_id" value="{{ g['id'] }}">
+                <select name="permission" onchange="this.form.submit()">
+                  {% set cur = grants.get(f['id'], {}).get(g['id'], 'none') %}
+                  <option value="none"     {{ 'selected' if cur=='none' else '' }}>none</option>
+                  <option value="download" {{ 'selected' if cur=='download' else '' }}>download</option>
+                  <option value="upload"   {{ 'selected' if cur=='upload' else '' }}>upload</option>
+                </select>
+              </form>
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <details>
+      <summary>Add / manage groups</summary>
+      <form method="post" action="/groups" class="grid">
+        <input name="name" placeholder="Group name (e.g. team)" required>
+        <input name="passcode" placeholder="Group passcode (optional)" autocomplete="off">
+        <button>Add group</button>
+      </form>
+      <ul class="chips">
+        {% for g in groups %}
+          <li>{{ g['name'] }}
+            <form method="post" action="/groups/{{ g['id'] }}/delete" style="display:inline">
+              <button class="xs ghost danger">×</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    </details>
+  </section>
+
+  <!-- ===== Share links ===== -->
+  <section class="card">
+    <h2>Share links</h2>
+    <p class="muted">Tokened links work without a passcode. They are appended to your live public URL.</p>
+    <table>
+      <thead><tr><th>Token link</th><th>Scope</th><th>Group</th><th>Expires</th><th>Cap</th><th>Used</th><th></th></tr></thead>
+      <tbody>
+      {% for l in links %}
+        <tr class="{{ 'revoked' if l['revoked'] else '' }}">
+          <td><button class="xs copy-link" data-token="{{ l['token'] }}">copy</button> <code class="tok">…{{ l['token'][-8:] }}</code></td>
+          <td>{{ 'folder #' ~ l['folder_id'] if l['folder_id'] else 'all visible' }}</td>
+          <td>{{ l['group_id'] or '—' }}</td>
+          <td>{{ '%.0f h'|format((l['expires_at']-now)/3600) if l['expires_at'] else '—' }}</td>
+          <td>{{ l['max_downloads'] or '∞' }}</td>
+          <td>{{ l['download_count'] }}</td>
+          <td>
+            {% if not l['revoked'] %}
+            <form method="post" action="/links/{{ l['id'] }}/revoke" style="display:inline">
+              <button class="xs ghost danger">revoke</button>
+            </form>
+            {% else %}<span class="muted">revoked</span>{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <details>
+      <summary>Create a link</summary>
+      <form method="post" action="/links" class="grid">
+        <select name="folder_id">
+          <option value="">All visible folders</option>
+          {% for f in folders %}<option value="{{ f['id'] }}">{{ f['name'] }}</option>{% endfor %}
+        </select>
+        <select name="group_id">
+          <option value="">No group (folder/public access only)</option>
+          {% for g in groups %}<option value="{{ g['id'] }}">{{ g['name'] }}</option>{% endfor %}
+        </select>
+        <input name="expires_hours" placeholder="Expires in hours (optional)">
+        <input name="max_downloads" placeholder="Max downloads (optional)">
+        <button>Create link</button>
+      </form>
+    </details>
+  </section>
+</main>
+
+<script>
+  window.BACKENDS = {{ backends | tojson }};
+</script>
+<script src="/static/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# Extra deps only needed for the OPTIONAL self-hosted relay backend.
+# Not required for the default zero-setup (cloudflared) experience.
+websockets>=12.0
+httpx>=0.27
