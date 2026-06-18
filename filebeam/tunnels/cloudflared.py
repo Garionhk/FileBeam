@@ -30,11 +30,11 @@ _URL_RE = re.compile(r"https://[-a-z0-9]+\.trycloudflare\.com")
 def _bundled_binary() -> Optional[Path]:
     exe = "cloudflared.exe" if sys.platform.startswith("win") else "cloudflared"
     candidates = [
-        # Source layout: fileshare/packaging/bin/
+        # Source layout: filebeam/packaging/bin/
         Path(__file__).resolve().parent.parent / "packaging" / "bin" / exe,
         # Bundle root variants (PyInstaller add-data target)
         bundle_dir() / "packaging" / "bin" / exe,
-        bundle_dir() / "fileshare" / "packaging" / "bin" / exe,
+        bundle_dir() / "filebeam" / "packaging" / "bin" / exe,
         # PyInstaller onefile lays resources flat in _MEIPASS
         bundle_dir() / exe,
     ]

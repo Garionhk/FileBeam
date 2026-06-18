@@ -47,7 +47,7 @@ class AdminGUI(ctk.CTk):
         self._backend_label_to_name = {b["label"]: b["name"] for b in backend_choices()}
         self._name_to_backend_label = {v: k for k, v in self._backend_label_to_name.items()}
 
-        self.title("FileShare")
+        self.title("FileBeam")
         self.geometry("960x720")
         self.minsize(840, 600)
         self.protocol("WM_DELETE_WINDOW", self._on_close)

@@ -1,4 +1,4 @@
-# FileShare
+# FileBeam
 
 Dead-simple, cross-platform (Windows + macOS) file sharing. You run **one** app
 and drop files into shared folders. **Anyone on the internet** can download them
@@ -14,7 +14,7 @@ tunnel, so your computer is reachable from the internet without opening any port
 ## Quick start
 
 ### Option A — download the app (recommended)
-1. Download **FileShare.app** (macOS) or **FileShare.exe** (Windows).
+1. Download **FileBeam.app** (macOS) or **FileBeam.exe** (Windows).
 2. Double-click it. A **desktop control window** opens (dark theme) and a public
    tunnel starts automatically.
 3. The **public URL** is shown prominently at the top of the window. Click
@@ -29,11 +29,11 @@ account, no signup. The `cloudflared` binary is bundled, so first run is truly
 zero-setup.
 
 **Building the binaries yourself:**
-- **macOS:** `./fileshare/packaging/build_mac.sh` → `dist/FileShare.app`
-- **Windows:** `powershell -ExecutionPolicy Bypass -File fileshare\packaging\build_win.ps1` → `dist\FileShare\FileShare.exe`
+- **macOS:** `./filebeam/packaging/build_mac.sh` → `dist/FileBeam.app`
+- **Windows:** `powershell -ExecutionPolicy Bypass -File filebeam\packaging\build_win.ps1` → `dist\FileBeam\FileBeam.exe`
 - **Both at once (no machines to set up):** push this repo to GitHub and run the
   **Build apps** workflow (`.github/workflows/build.yml`) from the Actions tab — it
-  produces `FileShare-macOS.zip` and `FileShare-Windows.zip` as artifacts.
+  produces `FileBeam-macOS.zip` and `FileBeam-Windows.zip` as artifacts.
 
 > A Windows `.exe` can only be built on Windows (PyInstaller does not
 > cross-compile); use the Windows build script or the GitHub Actions workflow.
@@ -42,7 +42,7 @@ zero-setup.
 ### Option B — run from source
 ```bash
 pip install -r requirements.txt
-python fileshare/packaging/fetch_cloudflared.py   # grab the bundled tunnel binary
+python filebeam/packaging/fetch_cloudflared.py   # grab the bundled tunnel binary
 python run.py
 ```
 Headless / server mode (no desktop window): `python run.py --no-gui`. Add
@@ -100,10 +100,10 @@ backend = "cloudflared"   # or localhost_run / selfhosted / lan
 ```
 
 ### Add your own backend in ~30 lines
-1. Subclass `TunnelBackend` (copy `fileshare/tunnels/localhost_run.py` as a template).
+1. Subclass `TunnelBackend` (copy `filebeam/tunnels/localhost_run.py` as a template).
 2. Implement `start`/`stop`; call `self._set_url(url)` whenever the URL appears or
    changes so the UI stays live.
-3. Register it: add one line to `BACKENDS` in `fileshare/tunnels/registry.py`.
+3. Register it: add one line to `BACKENDS` in `filebeam/tunnels/registry.py`.
 
 The settings file and the admin dropdown pick it up automatically.
 
@@ -119,7 +119,7 @@ On the VPS:
 ```bash
 pip install fastapi "uvicorn[standard]" websockets
 RELAY_TOKEN=choose-a-secret RELAY_PUBLIC_URL=https://share.example.com \
-  python fileshare/packaging/relay_server.py --port 8080
+  python filebeam/packaging/relay_server.py --port 8080
 # put it behind your TLS reverse proxy / give it a domain
 ```
 On your host (`settings.toml`):
@@ -160,7 +160,7 @@ This app exposes files to the public internet, so it is built defensively:
 ## Project layout
 
 ```
-fileshare/
+filebeam/
   config.py            settings + data paths
   main.py              entry point (servers + tray)
   server/              FastAPI apps, routing, DB, streaming, sessions
@@ -178,7 +178,7 @@ run.py                 convenience launcher
 ## Run the tests
 ```bash
 pip install -r requirements.txt
-pytest fileshare/tests/ -q
+pytest filebeam/tests/ -q
 ```
 
 ## License

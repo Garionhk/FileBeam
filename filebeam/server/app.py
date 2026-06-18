@@ -25,14 +25,14 @@ _STATIC = Path(__file__).resolve().parent.parent / "ui" / "static"
 
 
 def build_admin_app(state: AppState) -> FastAPI:
-    app = FastAPI(title="FileShare Admin", docs_url=None, redoc_url=None)
+    app = FastAPI(title="FileBeam Admin", docs_url=None, redoc_url=None)
     app.mount("/static", StaticFiles(directory=str(_STATIC)), name="static")
     app.include_router(build_admin_router(state))
     return app
 
 
 def build_public_app(state: AppState) -> FastAPI:
-    app = FastAPI(title="FileShare", docs_url=None, redoc_url=None)
+    app = FastAPI(title="FileBeam", docs_url=None, redoc_url=None)
 
     @app.middleware("http")
     async def security_headers(request, call_next):

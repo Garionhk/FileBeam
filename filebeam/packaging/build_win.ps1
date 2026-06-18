@@ -1,5 +1,5 @@
 # Build the Windows .exe. Run from the project root:
-#   powershell -ExecutionPolicy Bypass -File fileshare\packaging\build_win.ps1
+#   powershell -ExecutionPolicy Bypass -File filebeam\packaging\build_win.ps1
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..\..")
 
@@ -11,9 +11,9 @@ Write-Host "==> Creating build venv"
 & .\.build-venv\Scripts\pip.exe install -r requirements.txt -r requirements-selfhosted.txt pyinstaller | Out-Null
 
 Write-Host "==> Fetching cloudflared (bundled tunnel binary)"
-& .\.build-venv\Scripts\python.exe fileshare\packaging\fetch_cloudflared.py
+& .\.build-venv\Scripts\python.exe filebeam\packaging\fetch_cloudflared.py
 
 Write-Host "==> Running PyInstaller"
-& .\.build-venv\Scripts\pyinstaller.exe --noconfirm --clean fileshare\packaging\fileshare.spec
+& .\.build-venv\Scripts\pyinstaller.exe --noconfirm --clean filebeam\packaging\filebeam.spec
 
-Write-Host "==> Done. App at: dist\FileShare\FileShare.exe"
+Write-Host "==> Done. App at: dist\FileBeam\FileBeam.exe"

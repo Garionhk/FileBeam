@@ -71,7 +71,7 @@ def run_tray(runtime) -> None:
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("Quit", quit_app),
     )
-    icon = pystray.Icon("FileShare", _icon_image(), "FileShare", menu)
+    icon = pystray.Icon("FileBeam", _icon_image(), "FileBeam", menu)
 
     # Refresh tooltip/menu when the URL changes.
     state.tunnel.add_listener(lambda url: icon.update_menu())
@@ -83,20 +83,20 @@ def _safe_start(state):
     try:
         state.tunnel.start()
     except Exception as e:  # noqa: BLE001
-        print(f"[FileShare] tunnel failed to start: {e}")
+        print(f"[FileBeam] tunnel failed to start: {e}")
 
 
 def run_console(runtime) -> None:
     """Headless fallback: print URLs and block until Ctrl-C."""
     import time
 
-    print(f"[FileShare] Admin page: {runtime.admin_url}")
-    print("[FileShare] Starting tunnel…")
+    print(f"[FileBeam] Admin page: {runtime.admin_url}")
+    print("[FileBeam] Starting tunnel…")
     try:
         url = runtime.state.tunnel.start()
-        print(f"[FileShare] PUBLIC URL: {url}")
+        print(f"[FileBeam] PUBLIC URL: {url}")
     except Exception as e:  # noqa: BLE001
-        print(f"[FileShare] Tunnel failed: {e}")
+        print(f"[FileBeam] Tunnel failed: {e}")
     last = runtime.state.tunnel.public_url
     try:
         while True:
@@ -104,8 +104,8 @@ def run_console(runtime) -> None:
             now = runtime.state.tunnel.public_url
             if now != last:
                 if now:
-                    print(f"[FileShare] ⚠️  PUBLIC URL CHANGED -> {now}  (old links are dead)")
+                    print(f"[FileBeam] ⚠️  PUBLIC URL CHANGED -> {now}  (old links are dead)")
                 last = now
     except KeyboardInterrupt:
-        print("\n[FileShare] Shutting down…")
+        print("\n[FileBeam] Shutting down…")
         runtime.stop()

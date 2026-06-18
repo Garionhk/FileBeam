@@ -1,7 +1,7 @@
 """OPTIONAL self-hosted relay — run this on a public-IP VPS, not the host PC.
 
 It accepts public HTTP on :PORT and forwards every request, over a WebSocket, to
-a FileShare app that connected outward using the `selfhosted` backend. This is
+a FileBeam app that connected outward using the `selfhosted` backend. This is
 the "no third parties in the path" upgrade; it is never required for normal use.
 
 A home/NAT machine cannot run this usefully — the relay itself must be reachable
@@ -34,7 +34,7 @@ app = FastAPI()
 TOKEN = os.environ.get("RELAY_TOKEN", "")
 PUBLIC_URL = os.environ.get("RELAY_PUBLIC_URL", "http://localhost:8080")
 
-# Single active agent (one FileShare host per relay). Extendable to many.
+# Single active agent (one FileBeam host per relay). Extendable to many.
 _agent: WebSocket | None = None
 _pending: dict[str, asyncio.Future] = {}
 
@@ -66,7 +66,7 @@ async def relay_ws(ws: WebSocket):
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "HEAD"])
 async def proxy(path: str, request: Request):
     if _agent is None:
-        return Response("FileShare host not connected", status_code=503)
+        return Response("FileBeam host not connected", status_code=503)
     rid = uuid.uuid4().hex
     body = await request.body()
     fut: asyncio.Future = asyncio.get_event_loop().create_future()

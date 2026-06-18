@@ -16,7 +16,7 @@ LANGUAGES = {
 
 TRANSLATIONS: dict[str, dict[str, str]] = {
     "en": {
-        "app_title": "FileShare",
+        "app_title": "FileBeam",
         "subtitle": "Share files publicly — no account, no setup",
         "language": "Language",
         # status / tunnel
@@ -87,7 +87,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "files_added": "Files added",
     },
     "zh-Hant": {
-        "app_title": "FileShare 檔案分享",
+        "app_title": "FileBeam 檔案分享",
         "subtitle": "公開分享檔案 — 免註冊、免設定",
         "language": "語言",
         "public_url": "公開網址",

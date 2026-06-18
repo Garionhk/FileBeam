@@ -1,4 +1,4 @@
-# FileShare settings. Edit while the app is stopped, or use the admin UI.
+# FileBeam settings. Edit while the app is stopped, or use the admin UI.
 
 [server]
 # Local admin page binds here (loopback only — never expose this publicly).

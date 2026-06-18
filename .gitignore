@@ -7,8 +7,8 @@ dist/
 release/
 *.zip
 *.spec.bak
-fileshare/packaging/bin/cloudflared
-fileshare/packaging/bin/cloudflared.exe
+filebeam/packaging/bin/cloudflared
+filebeam/packaging/bin/cloudflared.exe
 *.db
 *.db-wal
 *.db-shm

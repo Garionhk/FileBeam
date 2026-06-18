@@ -16,7 +16,7 @@ except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib  # type: ignore
 
 
-APP_NAME = "FileShare"
+APP_NAME = "FileBeam"
 
 
 def _user_data_dir() -> Path:
@@ -90,7 +90,7 @@ class Config:
             with open(self.path, "rb") as f:
                 self.data = _deep_merge(DEFAULTS, tomllib.load(f))
         self.data_dir = _user_data_dir()
-        self.db_path = self.data_dir / "fileshare.db"
+        self.db_path = self.data_dir / "filebeam.db"
         self._prefs_path = self.data_dir / "ui_prefs.json"
 
     # --- UI preferences (persisted separately so we never rewrite TOML) -----

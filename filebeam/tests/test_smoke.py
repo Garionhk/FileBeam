@@ -8,11 +8,11 @@ import importlib
 import pytest
 from fastapi.testclient import TestClient
 
-from fileshare.auth.tokens import hash_passcode, verify_passcode
-from fileshare.config import Config
-from fileshare.server.app import build_admin_app, build_public_app
-from fileshare.server.state import AppState
-from fileshare.server.streaming import safe_join
+from filebeam.auth.tokens import hash_passcode, verify_passcode
+from filebeam.config import Config
+from filebeam.server.app import build_admin_app, build_public_app
+from filebeam.server.state import AppState
+from filebeam.server.streaming import safe_join
 from fastapi import HTTPException
 
 
@@ -21,7 +21,7 @@ def state(tmp_path, monkeypatch):
     # Point config at a temp data dir / settings.
     cfg = Config.__new__(Config)
     cfg.path = tmp_path / "settings.toml"
-    from fileshare.config import DEFAULTS
+    from filebeam.config import DEFAULTS
     cfg.data = dict(DEFAULTS)
     cfg.data_dir = tmp_path
     cfg.db_path = tmp_path / "test.db"
@@ -143,7 +143,7 @@ def test_upload_permission_enforced(state, public, tmp_path):
 def test_admin_dashboard(state, admin):
     r = admin.get("/")
     assert r.status_code == 200
-    assert "FileShare" in r.text
+    assert "FileBeam" in r.text
     # status endpoint reports stopped tunnel
     s = admin.get("/status").json()
     assert s["state"] == "STOPPED"
@@ -151,7 +151,7 @@ def test_admin_dashboard(state, admin):
 
 # --- i18n: english + traditional chinese ----------------------------------
 def test_i18n_languages():
-    from fileshare.ui.i18n import LANGUAGES, I18n
+    from filebeam.ui.i18n import LANGUAGES, I18n
 
     assert set(LANGUAGES) == {"en", "zh-Hant"}
     i = I18n("en")
@@ -166,7 +166,7 @@ def test_i18n_languages():
 
 # --- backend registry is pluggable ----------------------------------------
 def test_backend_registry():
-    from fileshare.tunnels.registry import BACKENDS, DEFAULT_BACKEND, make_backend
+    from filebeam.tunnels.registry import BACKENDS, DEFAULT_BACKEND, make_backend
     assert DEFAULT_BACKEND == "cloudflared"
     assert set(["cloudflared", "localhost_run", "selfhosted", "lan"]) <= set(BACKENDS)
     b = make_backend("lan", "http://127.0.0.1:8766")

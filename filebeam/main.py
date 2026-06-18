@@ -1,4 +1,4 @@
-"""FileShare entry point.
+"""FileBeam entry point.
 
 Default: boots the public server + tunnel and opens the native desktop admin GUI
 (dark theme, multi-language). Headless mode (--no-gui) skips the GUI and runs a
@@ -22,11 +22,11 @@ import argparse  # noqa: E402
 import threading  # noqa: E402
 import time  # noqa: E402
 
-from fileshare.server.app import Runtime  # noqa: E402
+from filebeam.server.app import Runtime  # noqa: E402
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(prog="fileshare", description="Dead-simple public file sharing")
+    parser = argparse.ArgumentParser(prog="filebeam", description="Dead-simple public file sharing")
     parser.add_argument("--no-gui", action="store_true", help="run headless (no desktop window)")
     parser.add_argument("--no-tunnel", action="store_true", help="don't auto-start the tunnel")
     parser.add_argument("--web-admin", action="store_true",
@@ -38,7 +38,7 @@ def main(argv=None) -> int:
     if args.no_gui:
         runtime.start(start_admin_web=True)
         time.sleep(0.6)
-        from fileshare.ui.tray import run_console
+        from filebeam.ui.tray import run_console
         if args.no_tunnel:
             _idle(runtime)
         else:
@@ -51,7 +51,7 @@ def main(argv=None) -> int:
     if not args.no_tunnel:
         threading.Thread(target=lambda: _try_start(runtime), daemon=True).start()
 
-    from fileshare.ui.gui import run_gui
+    from filebeam.ui.gui import run_gui
     run_gui(runtime)  # blocks on the Tk main loop until the window closes
     return 0
 
@@ -59,9 +59,9 @@ def main(argv=None) -> int:
 def _try_start(runtime) -> None:
     try:
         url = runtime.state.tunnel.start()
-        print(f"[FileShare] PUBLIC URL: {url}")
+        print(f"[FileBeam] PUBLIC URL: {url}")
     except Exception as e:  # noqa: BLE001
-        print(f"[FileShare] Tunnel failed to start: {e}")
+        print(f"[FileBeam] Tunnel failed to start: {e}")
 
 
 def _idle(runtime) -> None:
